@@ -135,7 +135,7 @@ void Kingdom::LossPostActions( void )
             castles.ChangeColors( GetColor(), Color::NONE );
             castles.clear();
         }
-        world.ResetCapturedObjects( GetColor() );
+        World::Get().ResetCapturedObjects( GetColor() );
     }
 }
 
@@ -148,7 +148,7 @@ void Kingdom::ActionBeforeTurn( void )
 void Kingdom::ActionNewDay( void )
 {
     // countdown of days since the loss of the last town, first day isn't counted
-    if ( world.CountDay() > 1 && castles.empty() && lost_town_days > 0 ) {
+    if ( World::Get().CountDay() > 1 && castles.empty() && lost_town_days > 0 ) {
         --lost_town_days;
     }
 
@@ -165,7 +165,7 @@ void Kingdom::ActionNewDay( void )
     std::for_each( castles.begin(), castles.end(), []( Castle * castle ) { castle->ActionNewDay(); } );
 
     // skip incomes for first day, and heroes New Day too because it would do nothing
-    if ( 1 < world.CountDay() ) {
+    if ( 1 < World::Get().CountDay() ) {
         // heroes New Day
         std::for_each( heroes.begin(), heroes.end(), []( Heroes * hero ) { hero->ActionNewDay(); } );
 
@@ -186,7 +186,7 @@ void Kingdom::ActionNewDay( void )
     }
 
     // check event day AI
-    EventsDate events = world.GetEventsDate( GetColor() );
+    EventsDate events = World::Get().GetEventsDate( GetColor() );
     for ( EventsDate::const_iterator it = events.begin(); it != events.end(); ++it )
         AddFundsResource( ( *it ).resource );
 
@@ -197,7 +197,7 @@ void Kingdom::ActionNewDay( void )
 void Kingdom::ActionNewWeek( void )
 {
     // skip first day
-    if ( 1 < world.CountDay() ) {
+    if ( 1 < World::Get().CountDay() ) {
         // castle New Week
         std::for_each( castles.begin(), castles.end(), []( Castle * castle ) { castle->ActionNewWeek(); } );
 
@@ -221,7 +221,7 @@ void Kingdom::ActionNewWeek( void )
 void Kingdom::ActionNewMonth( void )
 {
     // skip first day
-    if ( 1 < world.CountDay() ) {
+    if ( 1 < World::Get().CountDay() ) {
         // castle New Month
         std::for_each( castles.begin(), castles.end(), []( Castle * castle ) { castle->ActionNewMonth(); } );
 
@@ -455,15 +455,15 @@ Recruits & Kingdom::GetRecruits( void )
     if ( Heroes::UNKNOWN == recruits.GetID1() || ( recruits.GetHero1() && !recruits.GetHero1()->isFreeman() ) ) {
         const bool preferNative = recruits.GetID1() == Heroes::UNKNOWN && recruits.GetID2() == Heroes::UNKNOWN;
 
-        recruits.SetHero1( world.GetFreemanHeroes( preferNative ? GetRace() : Race::NONE ) );
+        recruits.SetHero1( World::Get().GetFreemanHeroes( preferNative ? GetRace() : Race::NONE ) );
     }
 
     // update hero2
     if ( Heroes::UNKNOWN == recruits.GetID2() || ( recruits.GetHero2() && !recruits.GetHero2()->isFreeman() ) )
-        recruits.SetHero2( world.GetFreemanHeroes() );
+        recruits.SetHero2( World::Get().GetFreemanHeroes() );
 
     if ( recruits.GetID1() == recruits.GetID2() )
-        world.UpdateRecruits( recruits );
+        World::Get().UpdateRecruits( recruits );
 
     return recruits;
 }
@@ -471,7 +471,7 @@ Recruits & Kingdom::GetRecruits( void )
 void Kingdom::UpdateRecruits( void )
 {
     bool hasSpecialHireableHero = false;
-    if ( isControlHuman() && ( Settings::Get().isCampaignGameType() ) && world.CountWeek() < 2 ) {
+    if ( isControlHuman() && ( Settings::Get().isCampaignGameType() ) && World::Get().CountWeek() < 2 ) {
         const std::vector<Campaign::CampaignAwardData> obtainedAwards = Campaign::CampaignSaveData::Get().getObtainedCampaignAwards();
 
         for ( size_t i = 0; i < obtainedAwards.size(); ++i ) {
@@ -479,7 +479,7 @@ void Kingdom::UpdateRecruits( void )
                 continue;
 
             // Use the standard GetHeroes() function instead of GetFreemanHeroesSpecial() and check the hero's freeman status below
-            const Heroes * hero = world.GetHeroes( obtainedAwards[i]._subType );
+            const Heroes * hero = World::Get().GetHeroes( obtainedAwards[i]._subType );
 
             if ( hero && hero->isFreeman() ) {
                 recruits.SetHero1( hero );
@@ -491,13 +491,13 @@ void Kingdom::UpdateRecruits( void )
 
     if ( !hasSpecialHireableHero ) {
         const bool preferNative = recruits.GetID1() == Heroes::UNKNOWN && recruits.GetID2() == Heroes::UNKNOWN;
-        recruits.SetHero1( world.GetFreemanHeroes( preferNative ? GetRace() : Race::NONE ) );
+        recruits.SetHero1( World::Get().GetFreemanHeroes( preferNative ? GetRace() : Race::NONE ) );
     }
 
-    recruits.SetHero2( world.GetFreemanHeroes() );
+    recruits.SetHero2( World::Get().GetFreemanHeroes() );
 
     if ( recruits.GetID1() == recruits.GetID2() )
-        world.UpdateRecruits( recruits );
+        World::Get().UpdateRecruits( recruits );
 }
 
 Puzzle & Kingdom::PuzzleMaps( void )
@@ -536,7 +536,7 @@ void Kingdom::ApplyPlayWithStartingHero( void )
 
         // check manual set hero (castle position + point(0, 1))?
         const fheroes2::Point & cp = castle->GetCenter();
-        Heroes * hero = world.GetTiles( cp.x, cp.y + 1 ).GetHeroes();
+        Heroes * hero = World::Get().GetTiles( cp.x, cp.y + 1 ).GetHeroes();
 
         // and move manual set hero to castle
         if ( hero && hero->GetColor() == GetColor() ) {
@@ -563,7 +563,7 @@ void Kingdom::ApplyPlayWithStartingHero( void )
         if ( nullptr == first )
             first = castles.front();
 
-        Heroes * hero = world.GetFreemanHeroes( first->GetRace() );
+        Heroes * hero = World::Get().GetFreemanHeroes( first->GetRace() );
         if ( hero && AllowRecruitHero( false, 0 ) )
             hero->Recruit( *first );
     }
@@ -584,7 +584,7 @@ Funds Kingdom::GetIncome( int type /* INCOME_ALL */ ) const
             = {Resource::WOOD, Resource::ORE, Resource::MERCURY, Resource::SULFUR, Resource::CRYSTAL, Resource::GEMS, Resource::GOLD, Resource::UNKNOWN};
 
         for ( u32 index = 0; resources[index] != Resource::UNKNOWN; ++index )
-            totalIncome += ProfitConditions::FromMine( resources[index] ) * world.CountCapturedMines( resources[index], GetColor() );
+            totalIncome += ProfitConditions::FromMine( resources[index] ) * World::Get().CountCapturedMines( resources[index], GetColor() );
     }
 
     if ( INCOME_CASTLES & type ) {
@@ -739,7 +739,7 @@ Kingdom & Kingdoms::GetKingdom( int color )
 void Kingdom::SetLastLostHero( const Heroes & hero )
 {
     lost_hero.id = hero.GetID();
-    lost_hero.date = world.CountDay();
+    lost_hero.date = World::Get().CountDay();
 }
 
 void Kingdom::SetLastBattleWinHero( const Heroes & hero )
@@ -755,12 +755,12 @@ void Kingdom::ResetLastLostHero( void )
 
 Heroes * Kingdom::GetLastLostHero( void ) const
 {
-    return Heroes::UNKNOWN != lost_hero.id && world.CountDay() - lost_hero.date < DAYOFWEEK ? world.GetHeroes( lost_hero.id ) : nullptr;
+    return Heroes::UNKNOWN != lost_hero.id && World::Get().CountDay() - lost_hero.date < DAYOFWEEK ? World::Get().GetHeroes( lost_hero.id ) : nullptr;
 }
 
 Heroes * Kingdom::GetLastBattleWinHero() const
 {
-    return Heroes::UNKNOWN != _lastBattleWinHeroID ? world.GetHeroes( _lastBattleWinHeroID ) : nullptr;
+    return Heroes::UNKNOWN != _lastBattleWinHeroID ? World::Get().GetHeroes( _lastBattleWinHeroID ) : nullptr;
 }
 
 void Kingdoms::NewDay( void )
@@ -796,7 +796,7 @@ int Kingdoms::GetNotLossColors( void ) const
 int Kingdoms::FindWins( int cond ) const
 {
     for ( const Kingdom & kingdom : kingdoms )
-        if ( kingdom.GetColor() && world.KingdomIsWins( kingdom, cond ) )
+        if ( kingdom.GetColor() && World::Get().KingdomIsWins( kingdom, cond ) )
             return kingdom.GetColor();
     return 0;
 }
@@ -851,7 +851,7 @@ void Kingdoms::AddTributeEvents( CapturedObjects & captureobj, const uint32_t da
                     event.title = MP2::StringObject( objectType );
                 }
 
-                world.AddEventDate( event );
+                World::Get().AddEventDate( event );
             }
         }
     }

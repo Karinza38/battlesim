@@ -79,7 +79,7 @@ namespace
 
         for ( const int32_t indexId : indexes ) {
             // If allDirections is false, we should only consider tiles below the current object
-            if ( !allDirections && indexId < tileId + world.w() - 2 ) {
+            if ( !allDirections && indexId < tileId + World::Get().w() - 2 ) {
                 continue;
             }
 
@@ -236,7 +236,7 @@ u32 CapturedObjects::GetCountMines( int type, int col ) const
 
         if ( objcol == objcol1 || objcol == objcol2 ) {
             // scan for find mines
-            const uint8_t index = world.GetTiles( ( *it ).first ).GetObjectSpriteIndex();
+            const uint8_t index = World::Get().GetTiles( ( *it ).first ).GetObjectSpriteIndex();
 
             // index sprite EXTRAOVR
             if ( 0 == index && Resource::ORE == type )
@@ -296,7 +296,7 @@ void CapturedObjects::ResetColor( int color )
             const MP2::MapObjectType objectType = static_cast<MP2::MapObjectType>( objcol.first );
 
             objcol.second = objectType == MP2::OBJ_CASTLE ? Color::UNUSED : Color::NONE;
-            world.GetTiles( ( *it ).first ).CaptureFlags32( objectType, objcol.second );
+            World::Get().GetTiles( ( *it ).first ).CaptureFlags32( objectType, objcol.second );
         }
     }
 }
@@ -310,7 +310,7 @@ void CapturedObjects::tributeCapturedObjects( const int playerColorId, const int
         const ObjectColor & objcol = ( *it ).second.objcol;
 
         if ( objcol.isObject( objectType ) && objcol.isColor( playerColorId ) ) {
-            Maps::Tiles & tile = world.GetTiles( ( *it ).first );
+            Maps::Tiles & tile = World::Get().GetTiles( ( *it ).first );
 
             funds += Funds( tile.QuantityResourceCount() );
             ++objectCount;
@@ -319,13 +319,18 @@ void CapturedObjects::tributeCapturedObjects( const int playerColorId, const int
     }
 }
 
-World & world = World::Get();
-
 World & World::Get( void )
 {
-    static World insideWorld;
+    static __thread World* insideWorld;
 
-    return insideWorld;
+    if (insideWorld == nullptr) {
+        insideWorld = new World();
+    }
+
+    return *insideWorld;
+
+    // static World insideWorld;
+    // return insideWorld;
 }
 
 void World::Defaults( void )
@@ -1178,7 +1183,7 @@ bool World::isAnyKingdomVisited( const MP2::MapObjectType objectType, const int3
 {
     const Colors colors( Game::GetKingdomColors() );
     for ( const int color : colors ) {
-        const Kingdom & kingdom = world.GetKingdom( color );
+        const Kingdom & kingdom = World::Get().GetKingdom( color );
         if ( kingdom.isVisited( dstIndex, objectType ) ) {
             return true;
         }

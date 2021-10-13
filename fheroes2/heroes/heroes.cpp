@@ -536,7 +536,7 @@ u32 Heroes::GetMaxMovePoints( void ) const
         point += artifactCount( Artifact::SAILORS_ASTROLABE_MOBILITY ) * 1000;
 
         // visited object
-        point += 500 * world.CountCapturedObject( MP2::OBJ_LIGHTHOUSE, GetColor() );
+        point += 500 * World::Get().CountCapturedObject( MP2::OBJ_LIGHTHOUSE, GetColor() );
     }
     else {
         const Troop * troop = army.GetSlowestTroop();
@@ -643,10 +643,10 @@ bool Heroes::Recruit( int cl, const fheroes2::Point & pt )
         return false;
     }
 
-    Kingdom & kingdom = world.GetKingdom( cl );
+    Kingdom & kingdom = World::Get().GetKingdom( cl );
 
     if ( kingdom.AllowRecruitHero( false, 0 ) ) {
-        Maps::Tiles & tiles = world.GetTiles( pt.x, pt.y );
+        Maps::Tiles & tiles = World::Get().GetTiles( pt.x, pt.y );
         SetColor( cl );
         killer_color.SetColor( Color::NONE );
         SetCenter( pt );
@@ -761,7 +761,7 @@ void Heroes::RescanPath( void )
         path.clear();
 
     if ( path.isValid() ) {
-        const Maps::Tiles & tile = world.GetTiles( path.GetDestinationIndex() );
+        const Maps::Tiles & tile = World::Get().GetTiles( path.GetDestinationIndex() );
 
         if ( !isShipMaster() && tile.isWater() && !MP2::isNeedStayFront( tile.GetObject() ) )
             path.PopBack();
@@ -794,12 +794,12 @@ Castle * Heroes::inCastleMutable() const
         const fheroes2::Point & heroPoint = GetCenter();
         const fheroes2::Point castlePoint( heroPoint.x, heroPoint.y + 1 );
 
-        Castle * castle = world.getCastleEntrance( castlePoint );
+        Castle * castle = World::Get().getCastleEntrance( castlePoint );
 
         return castle && castle->GetHeroes() == this ? castle : nullptr;
     }
 
-    Castle * castle = world.getCastleEntrance( GetCenter() );
+    Castle * castle = World::Get().getCastleEntrance( GetCenter() );
 
     return castle && castle->GetHeroes() == this ? castle : nullptr;
 }
@@ -825,7 +825,7 @@ bool Heroes::isObjectTypeVisited( const MP2::MapObjectType objectType, Visit::ty
 
 void Heroes::SetVisited( s32 index, Visit::type_t type )
 {
-    const Maps::Tiles & tile = world.GetTiles( index );
+    const Maps::Tiles & tile = World::Get().GetTiles( index );
     const MP2::MapObjectType objectType = tile.GetObject( false );
 
     if ( Visit::GLOBAL == type ) {
@@ -838,19 +838,19 @@ void Heroes::SetVisited( s32 index, Visit::type_t type )
 
 void Heroes::setVisitedForAllies( const int32_t tileIndex ) const
 {
-    const Maps::Tiles & tile = world.GetTiles( tileIndex );
+    const Maps::Tiles & tile = World::Get().GetTiles( tileIndex );
     const MP2::MapObjectType objectType = tile.GetObject( false );
 
     // Set visited to all allies as well.
     const Colors friendColors( Players::GetPlayerFriends( GetColor() ) );
     for ( const int friendColor : friendColors ) {
-        world.GetKingdom( friendColor ).SetVisited( tileIndex, objectType );
+        World::Get().GetKingdom( friendColor ).SetVisited( tileIndex, objectType );
     }
 }
 
 void Heroes::SetVisitedWideTile( s32 index, const MP2::MapObjectType objectType, Visit::type_t type )
 {
-    const Maps::Tiles & tile = world.GetTiles( index );
+    const Maps::Tiles & tile = World::Get().GetTiles( index );
     const uint32_t uid = tile.GetObjectUID();
     int wide = 0;
 
@@ -870,7 +870,7 @@ void Heroes::SetVisitedWideTile( s32 index, const MP2::MapObjectType objectType,
 
     if ( tile.GetObject( false ) == objectType && wide ) {
         for ( s32 ii = tile.GetIndex() - ( wide - 1 ); ii <= tile.GetIndex() + ( wide - 1 ); ++ii )
-            if ( Maps::isValidAbsIndex( ii ) && world.GetTiles( ii ).GetObjectUID() == uid )
+            if ( Maps::isValidAbsIndex( ii ) && World::Get().GetTiles( ii ).GetObjectUID() == uid )
                 SetVisited( ii, type );
     }
 }
@@ -1160,7 +1160,7 @@ bool Heroes::isMoveEnabled( void ) const
 
 bool Heroes::CanMove( void ) const
 {
-    const Maps::Tiles & tile = world.GetTiles( GetIndex() );
+    const Maps::Tiles & tile = World::Get().GetTiles( GetIndex() );
     return move_point >= ( tile.isRoad() ? Maps::Ground::roadPenalty : Maps::Ground::GetPenalty( tile, GetLevelSkill( Skill::Secondary::PATHFINDING ) ) );
 }
 
@@ -1300,12 +1300,12 @@ int Heroes::GetRangeRouteDays( s32 dst ) const
 {
     const u32 maxMovePoints = GetMaxMovePoints();
 
-    uint32_t total = world.getDistance( *this, dst );
+    uint32_t total = World::Get().getDistance( *this, dst );
     DEBUG_LOG( DBG_GAME, DBG_TRACE, "path distance: " << total );
 
     if ( total > 0 ) {
         // check if last step is diagonal and pre-adjust the total
-        const Route::Step lastStep = world.getPath( *this, dst ).back();
+        const Route::Step lastStep = World::Get().getPath( *this, dst ).back();
         if ( Direction::isDiagonal( lastStep.GetDirection() ) ) {
             total -= lastStep.GetPenalty() / 3;
         }
@@ -1452,7 +1452,7 @@ void Heroes::SetFreeman( int reason )
             kingdom.RemoveHeroes( this );
 
         SetColor( Color::NONE );
-        world.GetTiles( GetIndex() ).SetHeroes( nullptr );
+        World::Get().GetTiles( GetIndex() ).SetHeroes( nullptr );
         modes = 0;
         SetIndex( -1 );
         move_point_scale = -1;
@@ -1523,7 +1523,7 @@ void Heroes::ActionNewPosition( const bool allowMonsterAttack )
     }
 
     if ( !isFreeman() && GetMapsObject() == MP2::OBJ_EVENT ) {
-        const MapEvent * event = world.GetMapEvent( GetCenter() );
+        const MapEvent * event = World::Get().GetMapEvent( GetCenter() );
 
         if ( event && event->isAllow( GetColor() ) ) {
             Action( GetIndex(), false );
@@ -1561,10 +1561,10 @@ void Heroes::MovePointsScaleFixed( void )
 void Heroes::Move2Dest( const int32_t dstIndex )
 {
     if ( dstIndex != GetIndex() ) {
-        world.GetTiles( GetIndex() ).SetHeroes( nullptr );
+        World::Get().GetTiles( GetIndex() ).SetHeroes( nullptr );
         SetIndex( dstIndex );
         Scoute( dstIndex );
-        world.GetTiles( dstIndex ).SetHeroes( this );
+        World::Get().GetTiles( dstIndex ).SetHeroes( this );
     }
 }
 
@@ -1683,7 +1683,7 @@ std::string Heroes::String( void ) const
        << "direction       : " << Direction::String( direction ) << std::endl
        << "index sprite    : " << sprite_index << std::endl
        << "in castle       : " << ( inCastle() ? "true" : "false" ) << std::endl
-       << "save object     : " << MP2::StringObject( world.GetTiles( GetIndex() ).GetObject( false ) ) << std::endl
+       << "save object     : " << MP2::StringObject( World::Get().GetTiles( GetIndex() ).GetObject( false ) ) << std::endl
        << "flags           : " << ( Modes( SHIPMASTER ) ? "SHIPMASTER," : "" ) << ( Modes( PATROL ) ? "PATROL" : "" ) << std::endl;
 
     if ( Modes( PATROL ) ) {
@@ -1945,7 +1945,7 @@ HeroSeedsForLevelUp Heroes::GetSeedsForLevelUp() const
      * skill would always be the same once the 1st one is selected.
      * */
 
-    size_t hash = world.GetMapSeed();
+    size_t hash = World::Get().GetMapSeed();
     fheroes2::hashCombine( hash, hid );
     fheroes2::hashCombine( hash, _race );
     fheroes2::hashCombine( hash, attack );
@@ -1984,7 +1984,7 @@ StreamBase & operator>>( StreamBase & msg, VecHeroes & heroes )
     for ( AllHeroes::iterator it = heroes.begin(); it != heroes.end(); ++it ) {
         u32 hid;
         msg >> hid;
-        *it = ( hid != Heroes::UNKNOWN ? world.GetHeroes( hid ) : nullptr );
+        *it = ( hid != Heroes::UNKNOWN ? World::Get().GetHeroes( hid ) : nullptr );
     }
 
     return msg;

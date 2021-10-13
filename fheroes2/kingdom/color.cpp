@@ -168,7 +168,7 @@ void ColorBase::SetColor( int col )
 
 Kingdom & ColorBase::GetKingdom( void ) const
 {
-    return world.GetKingdom( color );
+    return World::Get().GetKingdom( color );
 }
 
 StreamBase & operator<<( StreamBase & msg, const ColorBase & col )

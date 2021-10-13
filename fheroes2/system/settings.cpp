@@ -125,9 +125,12 @@ Settings::~Settings()
 
 Settings & Settings::Get()
 {
-    static Settings conf;
+    static __thread Settings* conf;
+    if (conf == nullptr) {
+        conf = new Settings();
+    }
 
-    return conf;
+    return *conf;
 }
 
 bool Settings::Read( const std::string & filename )

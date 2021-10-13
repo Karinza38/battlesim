@@ -94,13 +94,13 @@ namespace AI
         // Step 1. Scan visible map (based on game difficulty), add goals and threats
         std::vector<std::pair<int, const Army *> > enemyArmies;
 
-        const int mapSize = world.w() * world.h();
+        const int mapSize = World::Get().w() * World::Get().h();
         _mapObjects.clear();
         _regions.clear();
-        _regions.resize( world.getRegionCount() );
+        _regions.resize( World::Get().getRegionCount() );
 
         for ( int idx = 0; idx < mapSize; ++idx ) {
-            const Maps::Tiles & tile = world.GetTiles( idx );
+            const Maps::Tiles & tile = World::Get().GetTiles( idx );
             const MP2::MapObjectType objectType = tile.GetObject();
 
             if ( !kingdom.isValidKingdomObject( tile, objectType ) )
@@ -140,7 +140,7 @@ namespace AI
                     }
                 }
                 else if ( objectType == MP2::OBJ_CASTLE && tileColor != Color::NONE && !Players::isFriends( color, tileColor ) ) {
-                    const Castle * castle = world.getCastleEntrance( Maps::GetPoint( idx ) );
+                    const Castle * castle = World::Get().getCastleEntrance( Maps::GetPoint( idx ) );
                     if ( !castle )
                         continue;
 
@@ -167,7 +167,7 @@ namespace AI
         status.RedrawTurnProgress( 1 );
 
         // Step 2. Update AI variables and recalculate resource budget
-        const bool slowEarlyGame = world.CountDay() < 5 && castles.size() == 1;
+        const bool slowEarlyGame = World::Get().CountDay() < 5 && castles.size() == 1;
 
         for ( auto it = heroes.begin(); it != heroes.end(); ++it ) {
             if ( *it ) {
@@ -206,7 +206,7 @@ namespace AI
             }
         }
 
-        int32_t heroLimit = world.w() / Maps::SMALL + 1;
+        int32_t heroLimit = World::Get().w() / Maps::SMALL + 1;
         if ( _personality == EXPLORER )
             ++heroLimit;
         if ( slowEarlyGame )
@@ -246,11 +246,11 @@ namespace AI
                     if ( hero != nullptr || ( !heroes.empty() && castlesInDanger.find( mapIndex ) != castlesInDanger.end() ) )
                         continue;
 
-                    const uint32_t regionID = world.GetTiles( mapIndex ).GetRegion();
+                    const uint32_t regionID = World::Get().GetTiles( mapIndex ).GetRegion();
                     const int heroCount = _regions[regionID].friendlyHeroCount;
 
                     // don't buy a second hero if castle is on locked island
-                    if ( world.getRegion( regionID ).getNeighboursCount() == 0 && heroCount > 0 )
+                    if ( World::Get().getRegion( regionID ).getNeighboursCount() == 0 && heroCount > 0 )
                         continue;
 
                     if ( recruitmentCastle == nullptr || lowestHeroCount > heroCount ) {

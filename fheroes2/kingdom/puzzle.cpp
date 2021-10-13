@@ -90,7 +90,7 @@ void Puzzle::Update( u32 open_obelisk, u32 total_obelisk )
 
 void Puzzle::ShowMapsDialog( void ) const
 {
-    const fheroes2::Image & sf = world.GetUltimateArtifact().GetPuzzleMapSurface();
+    const fheroes2::Image & sf = World::Get().GetUltimateArtifact().GetPuzzleMapSurface();
     if ( sf.empty() )
         return;
 

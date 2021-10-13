@@ -144,7 +144,7 @@ void Game::LoadPlayers( const std::string & mapFileName, Players & players )
         player->SetFriends( p.GetFriends() );
         player->SetName( p.GetName() );
         players.push_back( player );
-        Players::Set( Color::GetIndex( p.GetColor() ), player );
+        Settings::Get().GetPlayers().Set( Color::GetIndex( p.GetColor() ), player );
     }
 }
 
@@ -235,7 +235,7 @@ void Game::SetCurrentMusic( const int mus )
 void Game::ObjectFadeAnimation::PrepareFadeTask( const MP2::MapObjectType objectType, int32_t fromIndex, int32_t toIndex, bool fadeOut, bool fadeIn )
 {
     const uint8_t alpha = fadeOut ? 255u : 0;
-    const Maps::Tiles & fromTile = world.GetTiles( fromIndex );
+    const Maps::Tiles & fromTile = World::Get().GetTiles( fromIndex );
 
     if ( objectType == MP2::OBJ_ZERO ) {
         fadeTask = FadeTask();
@@ -259,7 +259,7 @@ void Game::ObjectFadeAnimation::PrepareFadeTask( const MP2::MapObjectType object
 void Game::ObjectFadeAnimation::PerformFadeTask()
 {
     auto removeObject = []() {
-        Maps::Tiles & tile = world.GetTiles( fadeTask.fromIndex );
+        Maps::Tiles & tile = World::Get().GetTiles( fadeTask.fromIndex );
 
         if ( tile.GetObject() == fadeTask.object ) {
             tile.RemoveObjectSprite();
@@ -267,7 +267,7 @@ void Game::ObjectFadeAnimation::PerformFadeTask()
         }
     };
     auto addObject = []() {
-        Maps::Tiles & tile = world.GetTiles( fadeTask.toIndex );
+        Maps::Tiles & tile = World::Get().GetTiles( fadeTask.toIndex );
 
         if ( tile.GetObject() != fadeTask.object && fadeTask.object == MP2::OBJ_BOAT ) {
             tile.setBoat( Direction::RIGHT );
@@ -352,7 +352,7 @@ void Game::EnvironmentSoundMixer()
     for ( int32_t yy = abs_pt.y - 3; yy <= abs_pt.y + 3; ++yy ) {
         for ( int32_t xx = abs_pt.x - 3; xx <= abs_pt.x + 3; ++xx ) {
             if ( Maps::isValidAbsPoint( xx, yy ) ) {
-                const uint32_t channel = GetMixerChannelFromObject( world.GetTiles( xx, yy ) );
+                const uint32_t channel = GetMixerChannelFromObject( World::Get().GetTiles( xx, yy ) );
                 if ( channel < reserved_vols.size() ) {
                     // volume calculation
                     const int length = std::max( std::abs( xx - abs_pt.x ), std::abs( yy - abs_pt.y ) );
@@ -430,7 +430,7 @@ u32 Game::GetGameOverScores( void )
         break;
     }
 
-    const uint32_t daysFactor = world.CountDay() * mapSizeFactor / 100;
+    const uint32_t daysFactor = World::Get().CountDay() * mapSizeFactor / 100;
 
     uint32_t daysScore = 0;
 

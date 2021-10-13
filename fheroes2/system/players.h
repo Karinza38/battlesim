@@ -29,6 +29,7 @@
 
 #include "bitmodes.h"
 #include "color.h"
+#include "gamedefs.h"
 
 namespace Maps
 {
@@ -169,8 +170,9 @@ public:
     Player * GetCurrent( void );
     const Player * GetCurrent( void ) const;
 
-    static void Set( const int color, Player * player );
-    static Player * Get( int color );
+    void Set( const int color, Player * player );
+    Player * Get( int color );
+    const Player * Get( int color ) const;
     static int GetPlayerControl( int color );
     static int GetPlayerRace( int color );
     static int GetPlayerFriends( int color );
@@ -179,10 +181,14 @@ public:
     static void SetPlayerRace( int color, int race );
     static void SetPlayerControl( int color, int ctrl );
     static void SetPlayerInGame( int color, bool );
-    static int HumanColors( void );
+    int HumanColors( void );
     static int FriendColors( void );
 
     int current_color;
+
+    enum { playersSize = KINGDOMMAX + 1 };
+    Player* _players[playersSize] = { nullptr };
+    int human_colors = 0;
 };
 
 StreamBase & operator<<( StreamBase &, const Players & );

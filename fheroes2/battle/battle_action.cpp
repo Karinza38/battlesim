@@ -516,16 +516,16 @@ void Battle::Arena::ApplyActionSurrender( const Command & /*cmd*/ )
         else if ( army2->GetColor() == current_color )
             cost.gold = army2->GetSurrenderCost();
 
-        if ( world.GetKingdom( current_color ).AllowPayment( cost ) ) {
+        if ( World::Get().GetKingdom( current_color ).AllowPayment( cost ) ) {
             if ( army1->GetColor() == current_color ) {
                 result_game.army1 = RESULT_SURRENDER;
-                world.GetKingdom( current_color ).OddFundsResource( cost );
-                world.GetKingdom( army2->GetColor() ).AddFundsResource( cost );
+                World::Get().GetKingdom( current_color ).OddFundsResource( cost );
+                World::Get().GetKingdom( army2->GetColor() ).AddFundsResource( cost );
             }
             else if ( army2->GetColor() == current_color ) {
                 result_game.army2 = RESULT_SURRENDER;
-                world.GetKingdom( current_color ).OddFundsResource( cost );
-                world.GetKingdom( army1->GetColor() ).AddFundsResource( cost );
+                World::Get().GetKingdom( current_color ).OddFundsResource( cost );
+                World::Get().GetKingdom( army1->GetColor() ).AddFundsResource( cost );
             }
             DEBUG_LOG( DBG_BATTLE, DBG_TRACE, "color: " << Color::String( current_color ) );
         }

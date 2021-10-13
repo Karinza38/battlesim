@@ -49,18 +49,18 @@ namespace
         const fheroes2::Point center = Maps::GetPoint( tileIndex );
 
         // AI is cheating!
-        const bool isAIPlayer = world.GetKingdom( playerColor ).isControlAI();
+        const bool isAIPlayer = World::Get().GetKingdom( playerColor ).isControlAI();
         if ( isAIPlayer ) {
             scouteValue += Difficulty::GetScoutingBonus( Game::getDifficulty() );
         }
 
         const int revealRadiusSquared = scouteValue * scouteValue + 4; // constant factor for "backwards compatibility"
         for ( int32_t y = center.y - scouteValue; y <= center.y + scouteValue; ++y ) {
-            if ( y < 0 || y >= world.h() )
+            if ( y < 0 || y >= World::Get().h() )
                 continue;
 
             for ( int32_t x = center.x - scouteValue; x <= center.x + scouteValue; ++x ) {
-                if ( x < 0 || x >= world.w() )
+                if ( x < 0 || x >= World::Get().w() )
                     continue;
 
                 const int32_t dx = x - center.x;
@@ -78,7 +78,7 @@ namespace
     {
         Maps::Indexes result;
         for ( size_t idx = 0; idx < indexes.size(); ++idx ) {
-            if ( world.GetTiles( indexes[idx] ).GetObject( !ignoreHeroes ) == objectType ) {
+            if ( World::Get().GetTiles( indexes[idx] ).GetObject( !ignoreHeroes ) == objectType ) {
                 result.push_back( indexes[idx] );
             }
         }
@@ -88,9 +88,9 @@ namespace
     Maps::Indexes MapsIndexesObject( const MP2::MapObjectType objectType, const bool ignoreHeroes = true )
     {
         Maps::Indexes result;
-        const int32_t size = static_cast<int32_t>( world.getSize() );
+        const int32_t size = static_cast<int32_t>( World::Get().getSize() );
         for ( int32_t idx = 0; idx < size; ++idx ) {
-            if ( world.GetTiles( idx ).GetObject( !ignoreHeroes ) == objectType ) {
+            if ( World::Get().GetTiles( idx ).GetObject( !ignoreHeroes ) == objectType ) {
                 result.push_back( idx );
             }
         }
@@ -166,7 +166,7 @@ int Maps::GetDirection( int from, int to )
         return Direction::CENTER;
 
     const int diff = to - from;
-    const int width = world.w();
+    const int width = World::Get().w();
 
     if ( diff == ( -width - 1 ) ) {
         return Direction::TOP_LEFT;
@@ -200,21 +200,21 @@ int32_t Maps::GetDirectionIndex( int32_t from, int vector )
 {
     switch ( vector ) {
     case Direction::TOP:
-        return from - world.w();
+        return from - World::Get().w();
     case Direction::TOP_RIGHT:
-        return from - world.w() + 1;
+        return from - World::Get().w() + 1;
     case Direction::RIGHT:
         return from + 1;
     case Direction::BOTTOM_RIGHT:
-        return from + world.w() + 1;
+        return from + World::Get().w() + 1;
     case Direction::BOTTOM:
-        return from + world.w();
+        return from + World::Get().w();
     case Direction::BOTTOM_LEFT:
-        return from + world.w() - 1;
+        return from + World::Get().w() - 1;
     case Direction::LEFT:
         return from - 1;
     case Direction::TOP_LEFT:
-        return from - world.w() - 1;
+        return from - World::Get().w() - 1;
     default:
         break;
     }
@@ -225,7 +225,7 @@ int32_t Maps::GetDirectionIndex( int32_t from, int vector )
 // check bound
 bool Maps::isValidDirection( int32_t from, int vector )
 {
-    const int32_t width = world.w();
+    const int32_t width = World::Get().w();
 
     switch ( vector ) {
     case Direction::TOP:
@@ -233,7 +233,7 @@ bool Maps::isValidDirection( int32_t from, int vector )
     case Direction::RIGHT:
         return ( ( from % width ) < ( width - 1 ) );
     case Direction::BOTTOM:
-        return ( from < width * ( world.h() - 1 ) );
+        return ( from < width * ( World::Get().h() - 1 ) );
     case Direction::LEFT:
         return ( from % width ) != 0;
 
@@ -241,10 +241,10 @@ bool Maps::isValidDirection( int32_t from, int vector )
         return ( from >= width ) && ( ( from % width ) < ( width - 1 ) );
 
     case Direction::BOTTOM_RIGHT:
-        return ( from < width * ( world.h() - 1 ) ) && ( ( from % width ) < ( width - 1 ) );
+        return ( from < width * ( World::Get().h() - 1 ) ) && ( ( from % width ) < ( width - 1 ) );
 
     case Direction::BOTTOM_LEFT:
-        return ( from < width * ( world.h() - 1 ) ) && ( from % width );
+        return ( from < width * ( World::Get().h() - 1 ) ) && ( from % width );
 
     case Direction::TOP_LEFT:
         return ( from >= width ) && ( from % width );
@@ -258,17 +258,17 @@ bool Maps::isValidDirection( int32_t from, int vector )
 
 fheroes2::Point Maps::GetPoint( const int32_t index )
 {
-    return fheroes2::Point( index % world.w(), index / world.w() );
+    return fheroes2::Point( index % World::Get().w(), index / World::Get().w() );
 }
 
 bool Maps::isValidAbsIndex( const int32_t index )
 {
-    return 0 <= index && index < world.w() * world.h();
+    return 0 <= index && index < World::Get().w() * World::Get().h();
 }
 
 bool Maps::isValidAbsPoint( const int32_t x, const int32_t y )
 {
-    return 0 <= x && world.w() > x && 0 <= y && world.h() > y;
+    return 0 <= x && World::Get().w() > x && 0 <= y && World::Get().h() > y;
 }
 
 int32_t Maps::GetIndexFromAbsPoint( const fheroes2::Point & mp )
@@ -277,7 +277,7 @@ int32_t Maps::GetIndexFromAbsPoint( const fheroes2::Point & mp )
         return -1;
     }
 
-    return mp.y * world.w() + mp.x;
+    return mp.y * World::Get().w() + mp.x;
 }
 
 int32_t Maps::GetIndexFromAbsPoint( const int32_t x, const int32_t y )
@@ -286,7 +286,7 @@ int32_t Maps::GetIndexFromAbsPoint( const int32_t x, const int32_t y )
         return -1;
     }
 
-    return y * world.w() + x;
+    return y * World::Get().w() + x;
 }
 
 Maps::Indexes Maps::getAroundIndexes( const int32_t tileIndex, const int32_t maxDistanceFromTile /* = 1 */ )
@@ -299,10 +299,10 @@ Maps::Indexes Maps::getAroundIndexes( const int32_t tileIndex, const int32_t max
 
     results.reserve( ( maxDistanceFromTile * 2 + 1 ) * ( maxDistanceFromTile * 2 + 1 ) - 1 );
 
-    assert( world.w() > 0 );
+    assert( World::Get().w() > 0 );
 
-    const int32_t centerX = tileIndex % world.w();
-    const int32_t centerY = tileIndex / world.w();
+    const int32_t centerX = tileIndex % World::Get().w();
+    const int32_t centerY = tileIndex / World::Get().w();
 
     for ( int32_t y = -maxDistanceFromTile; y <= maxDistanceFromTile; ++y ) {
         for ( int32_t x = -maxDistanceFromTile; x <= maxDistanceFromTile; ++x ) {
@@ -315,7 +315,7 @@ Maps::Indexes Maps::getAroundIndexes( const int32_t tileIndex, const int32_t max
             const int32_t tileY = centerY + y;
 
             if ( isValidAbsPoint( tileX, tileY ) ) {
-                results.push_back( tileY * world.w() + tileX );
+                results.push_back( tileY * World::Get().w() + tileX );
             }
         }
     }
@@ -331,11 +331,11 @@ void Maps::ClearFog( const int32_t tileIndex, const int scouteValue, const int p
         return;
     }
 
-    const bool isAIPlayer = world.GetKingdom( playerColor ).isControlAI();
+    const bool isAIPlayer = World::Get().GetKingdom( playerColor ).isControlAI();
     const int alliedColors = Players::GetPlayerFriends( playerColor );
 
     for ( const int32_t index : tileIndicies ) {
-        Maps::Tiles & tile = world.GetTiles( index );
+        Maps::Tiles & tile = World::Get().GetTiles( index );
         if ( isAIPlayer && tile.isFog( playerColor ) ) {
             AI::Get().revealFog( tile );
         }
@@ -351,7 +351,7 @@ int32_t Maps::getFogTileCountToBeRevealed( const int32_t tileIndex, const int sc
     int32_t tileCount = 0;
 
     for ( const int32_t index : tileIndicies ) {
-        const Maps::Tiles & tile = world.GetTiles( index );
+        const Maps::Tiles & tile = World::Get().GetTiles( index );
         if ( tile.isFog( playerColor ) ) {
             ++tileCount;
         }
@@ -369,7 +369,7 @@ Maps::Indexes Maps::ScanAroundObject( const int32_t center, const MP2::MapObject
 Maps::Indexes Maps::GetFreeIndexesAroundTile( const int32_t center )
 {
     Indexes results = getAroundIndexes( center );
-    results.erase( std::remove_if( results.begin(), results.end(), []( const int32_t tile ) { return !world.GetTiles( tile ).isClearGround(); } ), results.end() );
+    results.erase( std::remove_if( results.begin(), results.end(), []( const int32_t tile ) { return !World::Get().GetTiles( tile ).isClearGround(); } ), results.end() );
     return results;
 }
 
@@ -400,8 +400,8 @@ Maps::Indexes Maps::GetObjectPositions( int32_t center, const MP2::MapObjectType
 
 bool MapsTileIsUnderProtection( int32_t from, int32_t index ) /* from: center, index: monster */
 {
-    const Maps::Tiles & tile1 = world.GetTiles( from );
-    const Maps::Tiles & tile2 = world.GetTiles( index );
+    const Maps::Tiles & tile1 = World::Get().GetTiles( from );
+    const Maps::Tiles & tile2 = World::Get().GetTiles( index );
 
     if ( !MP2::isPickupObject( tile1.GetObject() ) && tile2.GetObject() == MP2::OBJ_MONSTER && tile1.isWater() == tile2.isWater() ) {
         const int monsterDirection = Maps::GetDirection( index, from );
@@ -423,7 +423,7 @@ bool MapsTileIsUnderProtection( int32_t from, int32_t index ) /* from: center, i
 
 bool Maps::TileIsUnderProtection( int32_t center )
 {
-    return MP2::OBJ_MONSTER == world.GetTiles( center ).GetObject() ? true : !GetTilesUnderProtection( center ).empty();
+    return MP2::OBJ_MONSTER == World::Get().GetTiles( center ).GetObject() ? true : !GetTilesUnderProtection( center ).empty();
 }
 
 Maps::Indexes Maps::GetTilesUnderProtection( int32_t center )
@@ -433,7 +433,7 @@ Maps::Indexes Maps::GetTilesUnderProtection( int32_t center )
         return result;
 
     result.reserve( 9 );
-    const int width = world.w();
+    const int width = World::Get().w();
     const int x = center % width;
     const int y = center / width;
 
@@ -454,12 +454,12 @@ Maps::Indexes Maps::GetTilesUnderProtection( int32_t center )
 
     if ( x > 0 )
         validateAndInsert( center - 1 );
-    if ( MP2::OBJ_MONSTER == world.GetTiles( center ).GetObject() )
+    if ( MP2::OBJ_MONSTER == World::Get().GetTiles( center ).GetObject() )
         result.push_back( center );
     if ( x < width - 1 )
         validateAndInsert( center + 1 );
 
-    if ( y < world.h() - 1 ) {
+    if ( y < World::Get().h() - 1 ) {
         if ( x > 0 )
             validateAndInsert( center + width - 1 );
 
@@ -487,7 +487,7 @@ void Maps::ReplaceRandomCastleObjectId( const fheroes2::Point & center )
     // Reset castle ID
     for ( int32_t y = -3; y < 2; ++y ) {
         for ( int32_t x = -2; x < 3; ++x ) {
-            Maps::Tiles & tile = world.GetTiles( center.x + x, center.y + y );
+            Maps::Tiles & tile = World::Get().GetTiles( center.x + x, center.y + y );
 
             if ( MP2::OBJN_RNDCASTLE == tile.GetObject() || MP2::OBJN_RNDTOWN == tile.GetObject() ) {
                 tile.SetObject( MP2::OBJN_CASTLE );
@@ -496,7 +496,7 @@ void Maps::ReplaceRandomCastleObjectId( const fheroes2::Point & center )
     }
 
     // restore center ID
-    world.GetTiles( center.x, center.y ).SetObject( MP2::OBJ_CASTLE );
+    World::Get().GetTiles( center.x, center.y ).SetObject( MP2::OBJ_CASTLE );
 }
 
 void Maps::UpdateCastleSprite( const fheroes2::Point & center, int race, bool isCastle, bool isRandom )
@@ -514,7 +514,7 @@ void Maps::UpdateCastleSprite( const fheroes2::Point & center, int race, bool is
     */
 
     // correct only RND town and castle
-    const Maps::Tiles & entranceTile = world.GetTiles( center.x, center.y );
+    const Maps::Tiles & entranceTile = World::Get().GetTiles( center.x, center.y );
     const MP2::MapObjectType objectType = entranceTile.GetObject();
     const uint32_t castleID = entranceTile.GetObjectUID();
 
@@ -557,7 +557,7 @@ void Maps::UpdateCastleSprite( const fheroes2::Point & center, int race, bool is
 
         const int castleTile = GetIndexFromAbsPoint( center.x + castleCoordinates[index][0], center.y + castleCoordinates[index][1] );
         if ( isValidAbsIndex( castleTile ) ) {
-            Tiles & tile = world.GetTiles( castleTile );
+            Tiles & tile = World::Get().GetTiles( castleTile );
 
             if ( isRandom )
                 tile.ReplaceObjectSprite( castleID, 38, 35 * 4, lookupID, fullTownIndex ); // OBJNTWRD to OBJNTOWN
@@ -576,9 +576,9 @@ void Maps::UpdateCastleSprite( const fheroes2::Point & center, int race, bool is
         const int shadowTile = GetIndexFromAbsPoint( center.x + shadowCoordinates[index][0], center.y + shadowCoordinates[index][1] );
         if ( isValidAbsIndex( shadowTile ) ) {
             if ( isRandom )
-                world.GetTiles( shadowTile ).ReplaceObjectSprite( castleID, 38, 37 * 4, lookupID + 32, fullTownIndex ); // OBJNTWRD to OBJNTWSH
+                World::Get().GetTiles( shadowTile ).ReplaceObjectSprite( castleID, 38, 37 * 4, lookupID + 32, fullTownIndex ); // OBJNTWRD to OBJNTWSH
             else
-                world.GetTiles( shadowTile ).UpdateObjectSprite( castleID, 37, 37 * 4, -16 ); // no change in tileset
+                World::Get().GetTiles( shadowTile ).UpdateObjectSprite( castleID, 37, 37 * 4, -16 ); // no change in tileset
         }
     }
 }

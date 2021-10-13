@@ -399,7 +399,7 @@ std::string Route::Path::String( void ) const
     output += ", to: ";
     output += std::to_string( GetLastIndex() );
     output += ", obj: ";
-    output += MP2::StringObject( world.GetTiles( dst ).GetObject() );
+    output += MP2::StringObject( World::Get().GetTiles( dst ).GetObject() );
     output += ", dump: ";
 
     for ( const Step & step : *this ) {
@@ -417,7 +417,7 @@ std::string Route::Path::String( void ) const
 bool StepIsObstacle( const Route::Step & s )
 {
     s32 index = s.GetIndex();
-    const MP2::MapObjectType objectType = 0 <= index ? world.GetTiles( index ).GetObject() : MP2::OBJ_ZERO;
+    const MP2::MapObjectType objectType = 0 <= index ? World::Get().GetTiles( index ).GetObject() : MP2::OBJ_ZERO;
 
     switch ( objectType ) {
     case MP2::OBJ_HEROES:
@@ -446,11 +446,11 @@ void Route::Path::RescanObstacle( void )
         size_t size1 = size();
         s32 reduce = ( *it ).GetFrom();
 
-        std::list<Step> path = world.getPath( *hero, dst );
+        std::list<Step> path = World::Get().getPath( *hero, dst );
         const bool reducePath = path.size() > size1 * 2;
         // reduce
         if ( reducePath )
-            path = world.getPath( *hero, reduce );
+            path = World::Get().getPath( *hero, reduce );
 
         setPath( path, reducePath ? reduce : dst );
     }
@@ -462,7 +462,7 @@ void Route::Path::RescanPassable( void )
     iterator it = begin();
 
     for ( ; it != end(); ++it ) {
-        if ( !world.GetTiles( it->GetFrom() ).isPassable( it->GetDirection(), hero->isShipMaster(), false, hero->GetColor() ) ) {
+        if ( !World::Get().GetTiles( it->GetFrom() ).isPassable( it->GetDirection(), hero->isShipMaster(), false, hero->GetColor() ) ) {
             break;
         }
     }

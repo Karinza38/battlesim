@@ -48,7 +48,7 @@
 
 namespace Battle
 {
-    Arena * arena = nullptr;
+    __thread Arena * arena = nullptr;
 }
 
 namespace
@@ -177,7 +177,7 @@ Battle::Arena::Arena( Army & a1, Army & a2, s32 index, bool local, Rand::Determi
     , armies_order( nullptr )
     , current_color( Color::NONE )
     , preferredColor( -1 ) // be aware of unknown color
-    , castle( world.getCastleEntrance( Maps::GetPoint( index ) ) )
+    , castle( World::Get().getCastleEntrance( Maps::GetPoint( index ) ) )
     , _isTown( castle != nullptr )
     , catapult( nullptr )
     , bridge( nullptr )
@@ -199,7 +199,7 @@ Battle::Arena::Arena( Army & a1, Army & a2, s32 index, bool local, Rand::Determi
 
     // init castle (interface ahead)
     if ( castle ) {
-        CastleHeroes heroes = world.GetHeroes( *castle );
+        CastleHeroes heroes = World::Get().GetHeroes( *castle );
 
         // skip if present guard and guest
         if ( heroes.FullHouse() )
@@ -266,14 +266,14 @@ Battle::Arena::Arena( Army & a1, Army & a2, s32 index, bool local, Rand::Determi
     else
     // set obstacles
     {
-        std::mt19937 seededGen( world.GetMapSeed() + static_cast<uint32_t>( index ) );
+        std::mt19937 seededGen( World::Get().GetMapSeed() + static_cast<uint32_t>( index ) );
 
-        icn_covr = Rand::GetWithGen( 0, 99, seededGen ) < 40 ? GetCovr( world.GetTiles( index ).GetGround(), seededGen ) : ICN::UNKNOWN;
+        icn_covr = Rand::GetWithGen( 0, 99, seededGen ) < 40 ? GetCovr( World::Get().GetTiles( index ).GetGround(), seededGen ) : ICN::UNKNOWN;
 
         if ( icn_covr != ICN::UNKNOWN )
             board.SetCovrObjects( icn_covr );
         else
-            board.SetCobjObjects( world.GetTiles( index ), seededGen );
+            board.SetCobjObjects( World::Get().GetTiles( index ), seededGen );
     }
 
     if ( interface ) {
@@ -481,8 +481,11 @@ void Battle::Arena::Turns( void )
             if ( bridge )
                 bridge->SetPassable( *troop );
 
+            // printf("troop move: %s\n", troop->GetName());
             // turn troop
             TurnTroop( troop, orderHistory );
+
+            // printf("result: army1: %s, army2: %s\n", army1->String().c_str(), army2->String().c_str());
 
             if ( armies_order ) {
                 // if unit hasn't finished its turn yet, then remove it from the order history
@@ -793,7 +796,7 @@ bool Battle::Arena::CanSurrenderOpponent( int color ) const
 {
     const HeroBase * hero1 = getEnemyCommander( color );
     const HeroBase * hero2 = getCommander( color );
-    return hero1 && hero1->isHeroes() && hero2 && hero2->isHeroes() && !world.GetKingdom( hero2->GetColor() ).GetCastles().empty();
+    return hero1 && hero1->isHeroes() && hero2 && hero2->isHeroes() && !World::Get().GetKingdom( hero2->GetColor() ).GetCastles().empty();
 }
 
 bool Battle::Arena::CanRetreatOpponent( int color ) const

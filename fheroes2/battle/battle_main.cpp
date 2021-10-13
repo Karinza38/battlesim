@@ -204,7 +204,7 @@ Battle::Result Battle::Loader( Army & army1, Army & army2, s32 mapsindex )
         showBattle = true;
 #endif
 
-    const size_t battleDeterministicSeed = computeBattleSeed( mapsindex, world.GetMapSeed(), army1, army2 );
+    const size_t battleDeterministicSeed = computeBattleSeed( mapsindex, World::Get().GetMapSeed(), army1, army2 );
     const size_t battlePureRandomSeed = Rand::Get( std::numeric_limits<uint32_t>::max() );
     const size_t battleSeed = Settings::Get().ExtBattleDeterministicResult() ? battleDeterministicSeed : battlePureRandomSeed;
     Rand::DeterministicRandomGenerator randomGenerator( battleSeed );

@@ -36,7 +36,7 @@ namespace
 {
     bool AIShouldVisitCastle( const Heroes & hero, int castleIndex )
     {
-        const Castle * castle = world.getCastleEntrance( Maps::GetPoint( castleIndex ) );
+        const Castle * castle = World::Get().getCastleEntrance( Maps::GetPoint( castleIndex ) );
         if ( castle ) {
             if ( hero.GetColor() == castle->GetColor() ) {
                 return castle->GetHeroes().Guest() == nullptr;
@@ -50,7 +50,7 @@ namespace
 
     bool HeroesValidObject( const Heroes & hero, const int32_t index, const AIWorldPathfinder & pathfinder )
     {
-        const Maps::Tiles & tile = world.GetTiles( index );
+        const Maps::Tiles & tile = World::Get().GetTiles( index );
         const MP2::MapObjectType objectType = tile.GetObject();
         const Army & army = hero.GetArmy();
         const Kingdom & kingdom = hero.GetKingdom();
@@ -329,7 +329,7 @@ namespace
                 return true;
             }
 
-            const int daysActive = DAYOFWEEK - world.GetDay() + 1;
+            const int daysActive = DAYOFWEEK - World::Get().GetDay() + 1;
             const double movementBonus = daysActive * 400.0 - 2.0 * pathfinder.getDistance( index );
 
             return !hero.isVisited( tile ) && movementBonus > 0;
@@ -516,11 +516,11 @@ namespace AI
 
         // In the future these hardcoded values could be configured by the mod
         // 1 tile distance is 100.0 value approximately
-        const Maps::Tiles & tile = world.GetTiles( index );
+        const Maps::Tiles & tile = World::Get().GetTiles( index );
         const MP2::MapObjectType objectType = tile.GetObject();
 
         if ( objectType == MP2::OBJ_CASTLE ) {
-            const Castle * castle = world.getCastleEntrance( Maps::GetPoint( index ) );
+            const Castle * castle = World::Get().getCastleEntrance( Maps::GetPoint( index ) );
             if ( !castle )
                 return valueToIgnore;
 
@@ -600,9 +600,9 @@ namespace AI
             return tile.QuantityTroop().GetStrength();
         }
         else if ( objectType == MP2::OBJ_STONELITHS ) {
-            const MapsIndexes & list = world.GetTeleportEndPoints( index );
+            const MapsIndexes & list = World::Get().GetTeleportEndPoints( index );
             for ( const int teleportIndex : list ) {
-                if ( world.GetTiles( teleportIndex ).isFog( hero.GetColor() ) )
+                if ( World::Get().GetTiles( teleportIndex ).isFog( hero.GetColor() ) )
                     return 0;
             }
             return valueToIgnore;
@@ -631,9 +631,9 @@ namespace AI
             return value;
         }
         else if ( objectType == MP2::OBJ_WHIRLPOOL ) {
-            const MapsIndexes & list = world.GetWhirlpoolEndPoints( index );
+            const MapsIndexes & list = World::Get().GetWhirlpoolEndPoints( index );
             for ( const int whirlpoolIndex : list ) {
-                if ( world.GetTiles( whirlpoolIndex ).isFog( hero.GetColor() ) )
+                if ( World::Get().GetTiles( whirlpoolIndex ).isFog( hero.GetColor() ) )
                     return -3000.0;
             }
             return -dangerousTaskPenalty; // no point to even loose the army for this
@@ -674,7 +674,7 @@ namespace AI
             return 100;
         }
         else if ( objectType == MP2::OBJ_STABLES ) {
-            const int daysActive = DAYOFWEEK - world.GetDay() + 1;
+            const int daysActive = DAYOFWEEK - World::Get().GetDay() + 1;
             double movementBonus = daysActive * 400.0 - 2.0 * distanceToObject;
             if ( movementBonus < 0 ) {
                 // Looks like this is too far away.
@@ -758,11 +758,11 @@ namespace AI
 
         // In the future these hardcoded values could be configured by the mod
         // 1 tile distance is 100.0 value approximately
-        const Maps::Tiles & tile = world.GetTiles( index );
+        const Maps::Tiles & tile = World::Get().GetTiles( index );
         const MP2::MapObjectType objectType = tile.GetObject();
 
         if ( objectType == MP2::OBJ_CASTLE ) {
-            const Castle * castle = world.getCastleEntrance( Maps::GetPoint( index ) );
+            const Castle * castle = World::Get().getCastleEntrance( Maps::GetPoint( index ) );
             if ( !castle )
                 return valueToIgnore;
 
@@ -842,9 +842,9 @@ namespace AI
             return tile.QuantityTroop().GetStrength();
         }
         else if ( objectType == MP2::OBJ_STONELITHS ) {
-            const MapsIndexes & list = world.GetTeleportEndPoints( index );
+            const MapsIndexes & list = World::Get().GetTeleportEndPoints( index );
             for ( const int teleportIndex : list ) {
-                if ( world.GetTiles( teleportIndex ).isFog( hero.GetColor() ) )
+                if ( World::Get().GetTiles( teleportIndex ).isFog( hero.GetColor() ) )
                     return 0;
             }
             return valueToIgnore;
@@ -873,9 +873,9 @@ namespace AI
             return value;
         }
         else if ( objectType == MP2::OBJ_WHIRLPOOL ) {
-            const MapsIndexes & list = world.GetWhirlpoolEndPoints( index );
+            const MapsIndexes & list = World::Get().GetWhirlpoolEndPoints( index );
             for ( const int whirlpoolIndex : list ) {
-                if ( world.GetTiles( whirlpoolIndex ).isFog( hero.GetColor() ) )
+                if ( World::Get().GetTiles( whirlpoolIndex ).isFog( hero.GetColor() ) )
                     return -3000.0;
             }
             return -dangerousTaskPenalty; // no point to even loose the army for this
@@ -916,7 +916,7 @@ namespace AI
             return 200;
         }
         else if ( objectType == MP2::OBJ_STABLES ) {
-            const int daysActive = DAYOFWEEK - world.GetDay() + 1;
+            const int daysActive = DAYOFWEEK - World::Get().GetDay() + 1;
             double movementBonus = daysActive * 400.0 - 2.0 * distanceToObject;
             if ( movementBonus < 0 ) {
                 // Looks like this is too far away.
@@ -1011,7 +1011,7 @@ namespace AI
 
     int AI::Normal::getPriorityTarget( const Heroes & hero, double & maxPriority, int patrolIndex, uint32_t distanceLimit )
     {
-        const double lowestPossibleValue = -1.0 * Maps::Ground::slowestMovePenalty * world.getSize();
+        const double lowestPossibleValue = -1.0 * Maps::Ground::slowestMovePenalty * World::Get().getSize();
         const bool heroInPatrolMode = patrolIndex != -1;
         const double heroStrength = hero.GetArmy().GetStrength();
 
@@ -1053,10 +1053,10 @@ namespace AI
                         }
                     }
                 }
-                const RegionStats & regionStats = _regions[world.GetTiles( node.first ).GetRegion()];
+                const RegionStats & regionStats = _regions[World::Get().GetTiles( node.first ).GetRegion()];
 
                 if ( heroStrength < regionStats.highestThreat ) {
-                    const Castle * castle = world.getCastleEntrance( Maps::GetPoint( node.first ) );
+                    const Castle * castle = World::Get().getCastleEntrance( Maps::GetPoint( node.first ) );
 
                     if ( castle && ( castle->GetGarrisonStrength( &hero ) <= 0 || castle->GetColor() == hero.GetColor() ) )
                         value -= dangerousTaskPenalty / 2;

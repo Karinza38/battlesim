@@ -350,6 +350,4 @@ StreamBase & operator>>( StreamBase &, ListActions & );
 StreamBase & operator<<( StreamBase &, const MapObjects & );
 StreamBase & operator>>( StreamBase &, MapObjects & );
 
-extern World & world;
-
 #endif

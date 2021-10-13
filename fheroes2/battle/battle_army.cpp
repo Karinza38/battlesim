@@ -21,6 +21,7 @@
  ***************************************************************************/
 
 #include <algorithm>
+#include <sstream>
 
 #include "battle.h"
 #include "battle_arena.h"
@@ -401,4 +402,27 @@ void Battle::Force::SyncArmyCount()
             }
         }
     }
+}
+
+std::string Battle::Force::String( void ) const
+{
+    std::ostringstream os;
+
+    const HeroBase * commander = GetCommander();
+    os << "color(" << army.GetColor() << "), ";
+
+    if ( commander )
+        os << "commander(" << GetCommander()->GetName() << "), ";
+
+    os << ": ";
+
+    for ( u32 index = 0; index < army.Size(); ++index ) {
+        Troop * troop = army.GetTroop( index );
+        if (troop && troop->isValid() ) {
+            const Unit * unit = FindUID( uids.at( index ) );
+            os << std::dec << (unit->GetInitialCount() - unit->GetDead()) << " " << troop->GetName() << ", ";
+        }
+    }
+
+    return os.str();
 }

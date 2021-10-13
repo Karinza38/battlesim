@@ -47,12 +47,12 @@ int Recruits::GetID2( void ) const
 
 Heroes * Recruits::GetHero1( void )
 {
-    return world.GetHeroes( first );
+    return World::Get().GetHeroes( first );
 }
 
 Heroes * Recruits::GetHero2( void )
 {
-    return world.GetHeroes( second );
+    return World::Get().GetHeroes( second );
 }
 
 void Recruits::SetHero1( const Heroes * hero )

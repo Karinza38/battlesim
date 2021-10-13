@@ -30,8 +30,13 @@ namespace AI
     // AI Selector here
     Base & Get( AI_TYPE /*type*/ ) // type might be used sometime in the future
     {
-        static AI::Normal normal;
-        return normal;
+        static __thread AI::Normal* ai;
+
+        if (ai == nullptr) {
+            ai = new AI::Normal();
+        }
+
+        return *ai;
     }
 
     bool BuildIfAvailable( Castle & castle, int building )

@@ -135,7 +135,7 @@ namespace AI
 
     bool CastleDevelopment( Castle & castle )
     {
-        if ( !castle.isBuild( BUILD_WELL ) && world.LastDay() ) {
+        if ( !castle.isBuild( BUILD_WELL ) && World::Get().LastDay() ) {
             // return right away - if you can't buy Well you can't buy anything else
             return BuildIfAvailable( castle, BUILD_WELL );
         }
@@ -144,7 +144,7 @@ namespace AI
             return true;
         }
 
-        const size_t neighbourRegions = world.getRegion( world.GetTiles( castle.GetIndex() ).GetRegion() ).getNeighboursCount();
+        const size_t neighbourRegions = World::Get().getRegion( World::Get().GetTiles( castle.GetIndex() ).GetRegion() ).getNeighboursCount();
         const bool islandOrPeninsula = neighbourRegions < 3;
 
         // force building a shipyard, +1 to cost check since we can have 0 neighbours

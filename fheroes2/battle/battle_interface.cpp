@@ -924,7 +924,7 @@ Battle::Interface::Interface( Arena & a, s32 center )
 
     // cover
     const bool trees = !Maps::ScanAroundObject( center, MP2::OBJ_TREES ).empty();
-    const Maps::Tiles & tile = world.GetTiles( center );
+    const Maps::Tiles & tile = World::Get().GetTiles( center );
 
     const int groundType = tile.GetGround();
     _brightLandType
@@ -4956,7 +4956,7 @@ void Battle::Interface::ProcessingHeroDialogResult( int res, Actions & a )
 
             if ( enemy ) {
                 const s32 cost = arena.GetCurrentForce().GetSurrenderCost();
-                Kingdom & kingdom = world.GetKingdom( arena.GetCurrentColor() );
+                Kingdom & kingdom = World::Get().GetKingdom( arena.GetCurrentColor() );
 
                 if ( DialogBattleSurrender( *enemy, cost, kingdom ) ) {
                     a.push_back( Command( CommandType::MSG_BATTLE_SURRENDER ) );

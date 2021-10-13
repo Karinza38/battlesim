@@ -907,7 +907,7 @@ void Army::setFromTile( const Maps::Tiles & tile )
 
     default:
         if ( isCaptureObject ) {
-            CapturedObject & co = world.GetCapturedObject( tile.GetIndex() );
+            CapturedObject & co = World::Get().GetCapturedObject( tile.GetIndex() );
             const Troop & troop = co.GetTroop();
 
             switch ( co.GetSplit() ) {

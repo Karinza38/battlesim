@@ -35,10 +35,6 @@
 
 namespace
 {
-    const int playersSize = KINGDOMMAX + 1;
-    Player * _players[playersSize] = { nullptr };
-    int human_colors = 0;
-
     enum
     {
         ST_INGAME = 0x2000
@@ -223,10 +219,10 @@ StreamBase & operator>>( StreamBase & msg, Focus & focus )
 
     switch ( focus.first ) {
     case FOCUS_HEROES:
-        focus.second = world.GetHeroes( Maps::GetPoint( index ) );
+        focus.second = World::Get().GetHeroes( Maps::GetPoint( index ) );
         break;
     case FOCUS_CASTLE:
-        focus.second = world.getCastle( Maps::GetPoint( index ) );
+        focus.second = World::Get().getCastle( Maps::GetPoint( index ) );
         break;
     default:
         focus.second = nullptr;
@@ -345,15 +341,20 @@ Player * Players::Get( int color )
     return _players[Color::GetIndex( color )];
 }
 
+const Player * Players::Get( int color ) const
+{
+    return _players[Color::GetIndex( color )];
+}
+
 bool Players::isFriends( int player, int colors )
 {
-    const Player * ptr = Get( player );
+    const Player * ptr = Settings::Get().GetPlayers().Get( player );
     return ptr ? ( ptr->GetFriends() & colors ) != 0 : false;
 }
 
 void Players::SetPlayerRace( int color, int race )
 {
-    Player * player = Get( color );
+    Player * player = Settings::Get().GetPlayers().Get( color );
 
     if ( player )
         player->SetRace( race );
@@ -361,7 +362,7 @@ void Players::SetPlayerRace( int color, int race )
 
 void Players::SetPlayerControl( int color, int ctrl )
 {
-    Player * player = Get( color );
+    Player * player = Settings::Get().GetPlayers().Get( color );
 
     if ( player )
         player->SetControl( ctrl );
@@ -401,31 +402,31 @@ const Player * Players::GetCurrent( void ) const
 
 int Players::GetPlayerFriends( int color )
 {
-    const Player * player = Get( color );
+    const Player * player = Settings::Get().GetPlayers().Get( color );
     return player ? player->GetFriends() : 0;
 }
 
 int Players::GetPlayerControl( int color )
 {
-    const Player * player = Get( color );
+    const Player * player = Settings::Get().GetPlayers().Get( color );
     return player ? player->GetControl() : CONTROL_NONE;
 }
 
 int Players::GetPlayerRace( int color )
 {
-    const Player * player = Get( color );
+    const Player * player = Settings::Get().GetPlayers().Get( color );
     return player ? player->GetRace() : Race::NONE;
 }
 
 bool Players::GetPlayerInGame( int color )
 {
-    const Player * player = Get( color );
+    const Player * player = Settings::Get().GetPlayers().Get( color );
     return player && player->isPlay();
 }
 
 void Players::SetPlayerInGame( int color, bool f )
 {
-    Player * player = Get( color );
+    Player * player = Settings::Get().GetPlayers().Get( color );
     if ( player )
         player->SetPlay( f );
 }
@@ -457,13 +458,13 @@ int Players::FriendColors( void )
     int colors = 0;
     const Players & players = Settings::Get().GetPlayers();
 
-    if ( players.current_color & Players::HumanColors() ) {
+    if ( players.current_color & Settings::Get().GetPlayers().HumanColors() ) {
         const Player * player = players.GetCurrent();
         if ( player )
             colors = player->GetFriends();
     }
     else
-        colors = Players::HumanColors();
+        colors = Settings::Get().GetPlayers().HumanColors();
 
     return colors;
 }
@@ -527,7 +528,7 @@ StreamBase & operator>>( StreamBase & msg, Players & players )
     for ( u32 ii = 0; ii < vcolors.size(); ++ii ) {
         Player * player = new Player();
         msg >> *player;
-        Players::Set( Color::GetIndex( player->GetColor() ), player );
+        Settings::Get().GetPlayers().Set( Color::GetIndex( player->GetColor() ), player );
         players.push_back( player );
     }
 

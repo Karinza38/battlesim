@@ -581,23 +581,19 @@ u32 Battle::Unit::CalculateDamageUnit( const Unit & enemy, double dmg ) const
     if ( enemy.isDragons() && Modes( SP_DRAGONSLAYER ) )
         r += Spell( Spell::DRAGONSLAYER ).ExtraValue();
 
-    printf("dmg before: %f, r: %d\n", dmg, r);
-
     // Attack bonus is 20% to 300%
-    // dmg *= 1 + ( 0 < r ? 0.1 * std::min( r, 20 ) : 0.05 * std::max( r, -16 ) );
+    dmg *= 1 + ( 0 < r ? 0.1 * std::min( r, 20 ) : 0.05 * std::max( r, -16 ) );
 
-    if (r < 0) {
-        if (r < -16) {
-            dmg *= 0.2;
-            printf("dmg#1: %f\n", dmg);
-        } else {
-            dmg = dmg * (r + 20) / 20;
-            printf("dmg#2: %f\n", dmg);
-        }
-    } else {
-       dmg *= 1 + 0.1 * std::min( r, 20 );
-       printf("dmg#3: %f\n", dmg);
-    }
+    // *Slightly* more accurate:
+    // if (r < 0) {
+    //     if (r < -16) {
+    //         dmg *= 0.2;
+    //     } else {
+    //         dmg = dmg * (r + 20) / 20;
+    //     }
+    // } else {
+    //    dmg *= 1 + 0.1 * std::min( r, 20 );
+    // }
 
     return static_cast<u32>( dmg ) < 1 ? 1 : static_cast<u32>( dmg );
 }
