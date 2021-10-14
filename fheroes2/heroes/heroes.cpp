@@ -357,7 +357,7 @@ void Heroes::PostLoad( void )
     move_point = GetMaxMovePoints();
 
     if ( isControlAI() ) {
-        AI::Get().HeroesPostLoad( *this );
+        AI::Get(GetKingdom().GetAiType()).HeroesPostLoad( *this );
     }
 
     DEBUG_LOG( DBG_GAME, DBG_INFO, name << ", color: " << Color::String( GetColor() ) << ", race: " << Race::String( _race ) );
@@ -1345,7 +1345,7 @@ void Heroes::LevelUp( bool skipsecondary, bool autoselect )
     if ( !skipsecondary )
         LevelUpSecondarySkill( seeds, primarySkill, ( autoselect || isControlAI() ) );
     if ( isControlAI() )
-        AI::Get().HeroesLevelUp( *this );
+        AI::Get(GetKingdom().GetAiType()).HeroesLevelUp( *this );
 }
 
 void Heroes::LevelUpSecondarySkill( const HeroSeedsForLevelUp & seeds, int primary, bool autoselect )
@@ -1532,7 +1532,7 @@ void Heroes::ActionNewPosition( const bool allowMonsterAttack )
     }
 
     if ( isControlAI() )
-        AI::Get().HeroesActionNewPosition( *this );
+        AI::Get(GetKingdom().GetAiType()).HeroesActionNewPosition( *this );
 
     ResetModes( VISIONS );
 }
@@ -1703,7 +1703,7 @@ std::string Heroes::String( void ) const
            << "spell book      : " << ( HaveSpellBook() ? spell_book.String() : "disabled" ) << std::endl
            << "army dump       : " << army.String() << std::endl;
 
-        os << AI::Get().HeroesString( *this );
+        os << AI::Get(GetKingdom().GetAiType()).HeroesString( *this );
     }
 
     return os.str();

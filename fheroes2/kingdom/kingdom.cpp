@@ -243,7 +243,7 @@ void Kingdom::AddHeroes( Heroes * hero )
         if ( player && player->isColor( GetColor() ) && player->isControlHuman() )
             Interface::Basic::Get().GetIconsPanel().ResetIcons( ICON_HEROES );
 
-        AI::Get().HeroesAdd( *hero );
+        AI::Get(GetAiType()).HeroesAdd( *hero );
     }
 }
 
@@ -266,7 +266,7 @@ void Kingdom::RemoveHeroes( const Heroes * hero )
 
         assert( hero != nullptr );
 
-        AI::Get().HeroesRemove( *hero );
+        AI::Get(GetAiType()).HeroesRemove( *hero );
     }
 
     if ( isLoss() )
@@ -283,7 +283,7 @@ void Kingdom::AddCastle( const Castle * castle )
         if ( player && player->isColor( GetColor() ) )
             Interface::Basic::Get().GetIconsPanel().ResetIcons( ICON_CASTLES );
 
-        AI::Get().CastleAdd( *castle );
+        AI::Get(GetAiType()).CastleAdd( *castle );
     }
 
     lost_town_days = Game::GetLostTownDays() + 1;
@@ -308,7 +308,7 @@ void Kingdom::RemoveCastle( const Castle * castle )
 
         assert( castle != nullptr );
 
-        AI::Get().CastleRemove( *castle );
+        AI::Get(GetAiType()).CastleRemove( *castle );
     }
 
     if ( isLoss() )

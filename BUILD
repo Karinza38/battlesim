@@ -357,6 +357,7 @@ cc_library(
     deps = [
         ":game",
         ":castle",
+        ":ai",
     ],
 )
 
@@ -487,6 +488,19 @@ cc_library(
 )
 
 cc_library(
+    name = "ai_denis",
+    hdrs = [
+        "fheroes2/ai/denis/ai_denis.h",
+    ],
+    deps = [
+        ":ai",
+        ":world",
+        ":ai_normal",
+    ],
+    strip_include_prefix = "fheroes2/ai",
+)
+
+cc_library(
     name = "world_src",
     srcs = [
         "fheroes2/world/world.cpp",
@@ -588,6 +602,28 @@ cc_library(
 )
 
 cc_library(
+    name = "ai_denis_src",
+    hdrs = [
+        "fheroes2/ai/denis/ai_denis.h",
+    ],
+    srcs = [
+        "fheroes2/ai/denis/ai_denis.cpp",
+        "fheroes2/ai/denis/ai_denis_battle.cpp",
+        "fheroes2/ai/denis/ai_denis_castle.cpp",
+        "fheroes2/ai/denis/ai_denis_hero.cpp",
+        "fheroes2/ai/denis/ai_denis_kingdom.cpp",
+        # "fheroes2/ai/normal/ai_normal_spell.cpp",
+    ],
+    deps = [
+        ":ai_normal",
+        # ":battle",
+        ":game_interface_h",
+        # ":maps_tiles_h",
+    ],
+)
+
+
+cc_library(
     name = "ai_src",
     srcs = [
         "fheroes2/ai/ai_base.cpp",
@@ -600,6 +636,7 @@ cc_library(
         ":army",
         ":game_interface_h",
         ":ai_normal",
+        ":ai_denis",
     ],
 )
 
@@ -793,7 +830,7 @@ cc_binary(
         ":puzzle_src",
         ":artifact_ultimate_cpp",
         ":artifact_cpp",
-
+        ":ai_denis_src",
         ":dialog_src",
         ":world_src",
         ":game_src",

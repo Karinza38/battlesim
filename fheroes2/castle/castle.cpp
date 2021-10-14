@@ -2341,7 +2341,7 @@ void Castle::ActionPreBattle( void )
         hero->GetArmy().JoinStrongestFromArmy( army );
 
     if ( isControlAI() )
-        AI::Get().CastlePreBattle( *this );
+        AI::Get(GetKingdom().GetAiType()).CastlePreBattle( *this );
 }
 
 void Castle::ActionAfterBattle( bool attacker_wins )
@@ -2352,7 +2352,7 @@ void Castle::ActionAfterBattle( bool attacker_wins )
     }
 
     if ( isControlAI() )
-        AI::Get().CastleAfterBattle( *this, attacker_wins );
+        AI::Get(GetKingdom().GetAiType()).CastleAfterBattle( *this, attacker_wins );
 }
 
 Castle * VecCastles::GetFirstCastle( void ) const

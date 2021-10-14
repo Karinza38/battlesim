@@ -1334,7 +1334,8 @@ std::list<Route::Step> World::getPath( const Heroes & hero, int targetIndex )
 void World::resetPathfinder()
 {
     _pathfinder.reset();
-    AI::Get().resetPathfinder();
+    AI::Get(AI::AI_TYPE::NORMAL).resetPathfinder();
+    AI::Get(AI::AI_TYPE::AI_DENIS).resetPathfinder();
 }
 
 void World::PostLoad( const bool setTilePassabilities )

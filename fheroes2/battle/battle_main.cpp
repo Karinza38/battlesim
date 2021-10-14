@@ -176,7 +176,8 @@ Battle::Result Battle::Loader( Army & army1, Army & army2, s32 mapsindex )
         commander1->ActionPreBattle();
 
         if ( army1.isControlAI() ) {
-            AI::Get().HeroesPreBattle( *commander1, true );
+            Kingdom& kingdom = World::Get().GetKingdom(army1.GetColor());
+            AI::Get(kingdom.GetAiType()).HeroesPreBattle( *commander1, true );
         }
 
         initialSpellPoints1 = commander1->GetSpellPoints();
@@ -190,7 +191,8 @@ Battle::Result Battle::Loader( Army & army1, Army & army2, s32 mapsindex )
         commander2->ActionPreBattle();
 
         if ( army2.isControlAI() ) {
-            AI::Get().HeroesPreBattle( *commander2, false );
+            Kingdom& kingdom = World::Get().GetKingdom(army2.GetColor());
+            AI::Get(kingdom.GetAiType()).HeroesPreBattle( *commander2, false );
         }
 
         initialSpellPoints2 = commander2->GetSpellPoints();
@@ -294,16 +296,20 @@ Battle::Result Battle::Loader( Army & army1, Army & army2, s32 mapsindex )
 
     // after battle army1
     if ( commander1 ) {
-        if ( army1.isControlAI() )
-            AI::Get().HeroesAfterBattle( *commander1, true );
+        if ( army1.isControlAI() ) {
+            Kingdom& kingdom = World::Get().GetKingdom(army1.GetColor());
+            AI::Get(kingdom.GetAiType()).HeroesAfterBattle( *commander1, true );
+        }
         else
             commander1->ActionAfterBattle();
     }
 
     // after battle army2
     if ( commander2 ) {
-        if ( army2.isControlAI() )
-            AI::Get().HeroesAfterBattle( *commander2, false );
+        if ( army2.isControlAI() ) {
+            Kingdom& kingdom = World::Get().GetKingdom(army1.GetColor());
+            AI::Get(kingdom.GetAiType()).HeroesAfterBattle( *commander2, false );
+        }
         else
             commander2->ActionAfterBattle();
     }

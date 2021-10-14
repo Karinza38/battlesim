@@ -24,19 +24,29 @@
 #include "castle.h"
 #include "kingdom.h"
 #include "normal/ai_normal.h"
+#include "denis/ai_denis.h"
 
 namespace AI
 {
     // AI Selector here
-    Base & Get( AI_TYPE /*type*/ ) // type might be used sometime in the future
+    Base & Get( AI_TYPE type ) // type might be used sometime in the future
     {
-        static __thread AI::Normal* ai;
+        static __thread AI::Base* ai_normal;
+        static __thread AI::Base* ai_denis;
 
-        if (ai == nullptr) {
-            ai = new AI::Normal();
+        switch (type) {
+          case AI_TYPE::NORMAL:
+            if (ai_normal == nullptr) {
+                ai_normal = new AI::Normal();
+            }
+            return *ai_normal;
+
+          case AI_TYPE::AI_DENIS:
+            if (ai_denis == nullptr) {
+                ai_denis = new AI::Denis();
+            }
+            return *ai_denis;
         }
-
-        return *ai;
     }
 
     bool BuildIfAvailable( Castle & castle, int building )

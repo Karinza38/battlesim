@@ -61,10 +61,12 @@ namespace Battle
         s32 GetIndexAbsPosition( const fheroes2::Point & ) const;
         std::vector<Unit *> GetNearestTroops( const Unit * startUnit, const std::vector<Unit *> & blackList );
         Indexes GetPath( const Unit & unit, const Position & destination, const bool debug = true ) const;
+        Indexes GetPath( s32 headIndex, u32 speed, const Unit & unit, bool isWide, const Position & destination, const bool debug ) const;
 
         void SetEnemyQuality( const Unit & ) const;
         void SetPositionQuality( const Unit & ) const;
         void SetScanPassability( const Unit & );
+        void SetScanPassability(s32 headIndex, s32 tailIndex, bool isWide, bool isFlying, u32 speed, const Unit & unit);
 
         void SetCobjObjects( const Maps::Tiles & tile, std::mt19937 & gen );
         void SetCovrObjects( int icn );

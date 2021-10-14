@@ -180,25 +180,25 @@ uint32_t Battle::Board::GetDistance( s32 index1, s32 index2 )
     return 0;
 }
 
-void Battle::Board::SetScanPassability( const Unit & unit )
+void Battle::Board::SetScanPassability(s32 headIndex, s32 tailIndex, bool isWide, bool isFlying, u32 speed, const Unit & unit)
 {
     std::for_each( begin(), end(), []( Battle::Cell & cell ) { cell.resetReachability(); } );
 
-    at( unit.GetHeadIndex() ).setReachableForHead();
+    at(headIndex).setReachableForHead();
 
-    if ( unit.isWide() ) {
-        at( unit.GetTailIndex() ).setReachableForTail();
+    if (unit.isWide()) {
+        at(tailIndex).setReachableForTail();
     }
 
-    if ( unit.isFlying() ) {
+    if (isFlying) {
         const Bridge * bridge = Arena::GetBridge();
-        const bool isPassableBridge = bridge == nullptr || bridge->isPassable( unit );
+        const bool isPassableBridge = bridge == nullptr || bridge->isPassable(unit);
 
         for ( std::size_t i = 0; i < size(); i++ ) {
             if ( at( i ).isPassable3( unit, false ) && ( isPassableBridge || !isBridgeIndex( static_cast<int32_t>( i ), unit ) ) ) {
                 at( i ).setReachableForHead();
 
-                if ( unit.isWide() ) {
+                if ( isWide ) {
                     at( i ).setReachableForTail();
                 }
             }
@@ -206,10 +206,15 @@ void Battle::Board::SetScanPassability( const Unit & unit )
     }
     else {
         // Set passable cells.
-        for ( const int32_t idx : GetDistanceIndexes( unit.GetHeadIndex(), unit.GetSpeed() ) ) {
-            GetPath( unit, Position::GetPositionWhenMoved( unit, idx ), false );
+        for ( const int32_t idx : GetDistanceIndexes( headIndex, speed ) ) {
+            GetPath(headIndex, speed, unit, isWide, Position::GetPositionWhenMoved( unit, idx ), false );
         }
     }
+}
+
+void Battle::Board::SetScanPassability( const Unit & unit )
+{
+    SetScanPassability(unit.GetHeadIndex(), unit.GetTailIndex(), unit.isWide(), unit.isFlying(), unit.GetSpeed(), unit);
 }
 
 bool Battle::Board::GetPathForUnit( const Unit & unit, const Position & destination, const uint32_t remainingSteps, const int32_t currentCellId,
@@ -456,6 +461,66 @@ Battle::Indexes Battle::Board::GetPath( const Unit & unit, const Position & dest
                    "Path is not found for " << unit.String() << ", destination: "
                                             << "(head cell ID: " << destination.GetHead()->GetIndex()
                                             << ", tail cell ID: " << ( isWideUnit ? destination.GetTail()->GetIndex() : -1 ) << ")" );
+    }
+
+    return result;
+}
+
+Battle::Indexes Battle::Board::GetPath( s32 headIndex, u32 speed, const Unit & unit, bool isWide, const Position & destination, const bool debug ) const
+{
+    Indexes result;
+
+    // Check if destination is valid
+    if ( !destination.GetHead() || ( isWide && !destination.GetTail() ) ) {
+        ERROR_LOG( "Invalid destination for unit " + unit.String() );
+        return result;
+    }
+
+    result.reserve( 15 );
+
+    std::vector<bool> visitedCells( ARENASIZE, false );
+
+    // Mark the current cell of the unit as visited
+    visitedCells.at(headIndex) = true;
+
+    if ( isWide ) {
+        GetPathForWideUnit( unit, destination, speed, headIndex, -1, visitedCells, result );
+    }
+    else {
+        GetPathForUnit( unit, destination, speed, headIndex, visitedCells, result );
+
+        // Try to straighten the unit's path by eliminating possible detours
+        StraightenPathForUnit(headIndex, result);
+    }
+
+    if ( !result.empty() ) {
+        std::reverse( result.begin(), result.end() );
+
+        // Set direction info for cells
+        for ( std::size_t i = 0; i < result.size(); i++ ) {
+            const int32_t cellId = result[i];
+
+            Cell * headCell = GetCell( cellId );
+            assert( headCell != nullptr );
+
+            headCell->setReachableForHead();
+
+            if ( isWide ) {
+                const int32_t prevCellId = i == 0 ? headIndex : result[i - 1];
+
+                Cell * tailCell = GetCell( cellId, LEFT_SIDE & GetDirection( cellId, prevCellId ) ? LEFT : RIGHT );
+                assert( tailCell != nullptr );
+
+                tailCell->setReachableForTail();
+            }
+        }
+    }
+
+    if ( debug && result.empty() ) {
+        DEBUG_LOG( DBG_BATTLE, DBG_WARN,
+                   "Path is not found for " << unit.String() << ", destination: "
+                                            << "(head cell ID: " << destination.GetHead()->GetIndex()
+                                            << ", tail cell ID: " << ( isWide ? destination.GetTail()->GetIndex() : -1 ) << ")" );
     }
 
     return result;

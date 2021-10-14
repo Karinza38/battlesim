@@ -727,6 +727,12 @@ namespace AI
 
     void Normal::BattleTurn( Arena & arena, const Unit & currentUnit, Actions & actions )
     {
+        // printf("Normal BattleTurn currentUnit: %s, shots: %u\n", currentUnit.String().c_str(), currentUnit.GetShots());
+        // const Units enemies( arena.getEnemyForce(currentUnit.GetCurrentColor()), true );
+        // for (auto it = enemies.begin(), end = enemies.end(); it != end; ++it) {
+        //     printf("enemy: %s\n", (*it)->String().c_str());
+        // }
+
         Board * board = Arena::GetBoard();
 
         board->Reset();

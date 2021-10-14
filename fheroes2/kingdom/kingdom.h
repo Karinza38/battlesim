@@ -27,6 +27,7 @@
 #include "mp2.h"
 #include "pairs.h"
 #include "puzzle.h"
+#include "ai.h"
 
 struct CapturedObjects;
 
@@ -161,6 +162,14 @@ public:
 
     static u32 GetMaxHeroes( void );
 
+    AI::AI_TYPE GetAiType() const {
+        return ai_type;
+    }
+
+    void SetAiType(AI::AI_TYPE ai_type) {
+        this->ai_type = ai_type;
+    }
+
 private:
     cost_t _getKingdomStartingResources( const int difficulty );
 
@@ -188,6 +197,8 @@ private:
 
     // Used to remember which item was selected in Kingdom View dialog.
     int _topItemInKingdomView;
+
+    AI::AI_TYPE ai_type { AI::AI_TYPE::NORMAL };
 };
 
 class Kingdoms

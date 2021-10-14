@@ -337,7 +337,7 @@ void Maps::ClearFog( const int32_t tileIndex, const int scouteValue, const int p
     for ( const int32_t index : tileIndicies ) {
         Maps::Tiles & tile = World::Get().GetTiles( index );
         if ( isAIPlayer && tile.isFog( playerColor ) ) {
-            AI::Get().revealFog( tile );
+            AI::Get(World::Get().GetKingdom( playerColor ).GetAiType()).revealFog( tile );
         }
 
         tile.ClearFog( alliedColors );
